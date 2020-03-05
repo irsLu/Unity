@@ -1,0 +1,15 @@
+{
+    "name": "XLua.Attributes",
+    "references": [
+        "GUID:042acbc740bd645458a1bb0025baba5a"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}

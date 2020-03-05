@@ -1,0 +1,498 @@
+syntax = "proto3";
+package cspb;
+
+import "vendor/github.com/gogo/protobuf/gogoproto/gogo.proto";
+option (gogoproto.goproto_unrecognized_all) = false;
+option (gogoproto.goproto_unkeyed_all)      = false;
+option (gogoproto.goproto_sizecache_all)    = false;
+
+import "pb/cspb/def.proto";
+
+// 坐标point
+message Coord {
+    int32 X = 1;
+    int32 Z = 2;
+}
+
+// 矩形
+message Rectangle {
+    Coord point  = 1; // 左上角点
+    int32 width  = 2;
+    int32 height = 3;
+}
+
+message Quintuple {
+    string typ          = 1;
+    int32 ID            = 2;
+    int32 val           = 3;
+    float arg1          = 4;
+    repeated int32 arg2 = 5;
+}
+
+// PlayerInfo 玩家数据
+message PlayerInfo {
+    int64 playerID = 1;
+    string name    = 2;
+    City city      = 4;
+}
+
+// City 城建信息
+message City {
+    int64 ID    = 1;
+    Coord coord = 2;
+    string name = 3;
+}
+
+message SearchResult {
+    int64 ID    = 1;
+    Coord coord = 2;
+}
+
+// Soldier 兵种
+message Soldier {
+    int32 id  = 1; // soldier id
+    int32 lvl = 2;
+}
+
+// TroopSoldier 部队兵种单位, 这里直接同步兵种血量, 兵种数量需要根据配置表计算出来
+message TroopSoldier {
+    int32 cfgID         = 1; // soldier 配置表id
+    int32 curHp         = 2; // 当前血量
+    int32 minorHurtHp   = 3; // 轻伤血量
+    int32 seriousHurtHp = 4; // 重伤血量
+}
+
+// Hero 英雄
+message Hero {
+    int64 ID    = 1; // 英雄ID
+    int32 cfgID = 2; // 英雄配置ID
+}
+
+message IDAndNum {
+    int32 ID    = 1;
+    int32 count = 2;
+}
+
+// 部队单位
+message TroopUnit {
+    map<string, uint64> Soldiers      = 1;
+    map<string, uint64> WoundSoldiers = 2;
+}
+
+// 战斗信息
+message BattleInfo {
+    int64 target  = 2; // 战斗目标
+    bool inBattle = 3; // 战斗中, 正在攻击别人或者被别人攻击
+}
+
+// 部队信息
+message TroopInfo {
+    TroopState state                = 1; // 除了战斗/行军之外的状态
+    TroopUnit troopUnit             = 2; // FIXME lq 要删除的
+    TroopStatus status              = 3;
+    repeated RadiusInfo radiusInfos = 4;  // 半径信息
+    repeated TroopSoldier soldiers  = 5;  // 兵种
+    BattleInfo battleInfo           = 6;  // 战斗信息
+    int32 mp                        = 7;  // 怒气
+    int64 npcGatherID               = 8;  // 部队当前采集的NpcGatherID
+    map<int32, double> rss          = 9;  // 部队当前携带的资源列表
+    map<int32, double> VM           = 10; // 部队当前携带的资源列表
+    int64 MaxLoad                   = 11; // 最大负载
+}
+
+message TypIDVal {
+    string typ = 1;
+    int32 ID   = 2;
+    double val = 3;
+}
+
+// 地图实体信息
+message EntityInfo {
+    Entity entity           = 1;
+    EntityProperty property = 2;
+}
+
+message Entity {
+    int64 ID           = 1;
+    Coord position     = 2; // 位置
+    EntityType type    = 3; // 单位类型
+    OwnerInfo owner    = 4; // 所属
+    MarchInfo march    = 5; // 移动
+    Coord LastSecCoord = 6; // 最后一段开始坐标
+}
+
+message EntityProperty {
+    TroopInfo troop         = 1;
+    MapCityInfo mapCity     = 2;
+    NpcGatherInfo npcGather = 3;
+    NpcTroopInfo npcTroop   = 4;
+}
+
+message OwnerInfo {
+    int64 ID       = 1;
+    OwnerType type = 2;
+    string name    = 3; // npc没有名字
+}
+
+// 行军线信息
+message MarchInfo {
+    Coord startCoord   = 1;
+    int64 startTime    = 2; // 开始的时间戳(毫秒)
+    int32 duration     = 3; // 已经走过的相对时间(毫秒)，相对开始时间
+    repeated Path path = 4;
+}
+
+message RadiusInfo {
+    RadiusType type = 1;
+    int32 radius    = 2;
+}
+
+// 主城
+message MapCityInfo {
+    int32 citySkinID = 1;
+    int64 playerID   = 2;
+    string name      = 3;
+    int32 level      = 4;
+}
+
+message NpcGatherInfo {
+    int32 npcGatherID      = 1;
+    map<int32, double> rss = 2;
+    map<int32, double> VM  = 3;
+    int64 troopID          = 4;
+    int64 deadline         = 5;
+}
+
+message NpcTroopInfo {
+    int32 npcTroopID               = 1;
+    repeated TroopSoldier soldiers = 2; // 兵种
+    BattleInfo battleInfo          = 3; // 战斗信息
+    int32 mp                       = 4; // 怒气
+    int64 deadline                 = 5;
+}
+
+message Path {
+    Coord endCoord = 1;
+    float speed    = 2;
+}
+
+// 其它资产
+message AssetValue {
+    int32 id  = 1; // ID
+    int64 val = 2; // value
+}
+
+// 某种资源列表
+message AssetInfo {
+    string typ                = 1; // 类型
+    repeated AssetValue lists = 2; // 其它资产列表
+}
+
+// 资源数值
+message RssValue {
+    int32 id             = 1; // 资源ID
+    int64 val            = 2; // 安全资源
+    int64 protectedVal   = 3; // 保护资源（非安全资源）
+    int64 noProtectedVal = 4; // 非保护资源（非安全资源）
+}
+
+// 战斗力
+message Power {
+    int32 cfgID = 1; // ID
+    int64 val   = 2; // value
+}
+
+// 待收取的兵种
+message SoldierFruit {
+    int64 id        = 1;
+    int32 soldierID = 2;
+    int32 value     = 3;
+}
+
+// BUFF
+message Buff {
+    int64 groupID    = 1; // 分组ID，建筑/玩家/联盟等唯一ID
+    int64 ID         = 2; // BUFF ID
+    int32 cfgID      = 3; // BUFF 配置ID
+    int32 value      = 4; // value
+    int64 endTs      = 5; // 结束时间，为0表示永久BUFF
+    int64 durationMs = 6; // 持续时间，为0表示永久持续
+    bool isGlobal    = 7; // 是否全局
+}
+
+// 商店消耗
+message ShopItemCost {
+    string typ = 1; // 消耗类型
+    int32 id   = 2;
+    int32 val  = 3;
+}
+
+// 商店物品
+message ShopItem {
+    int32 configID              = 1; // 商店唯一id
+    int32 itemID                = 2; // 兑换的目标道具ID
+    int32 count                 = 3; // 单次兑换获得的个数
+    repeated ShopItemCost costs = 4; // 单次兑换消耗
+}
+
+message BuildingResInfo {
+    int64 ID             = 1;
+    int64 lastGatherTime = 2; // 上次收取时间
+    int32 accumulation   = 3; // 累积资源量
+    int64 incEndTime     = 4; // 增产截止时间
+    int32 increaseAbs    = 5; // 固定增产
+    int32 increasePct    = 6; // 百分比增产，万分比
+}
+
+// 收取数量
+message BuildResGatherInfo {
+    int64 ID    = 1;
+    int32 count = 2;
+}
+
+message Building {
+    int64 ID        = 1;
+    int32 configID  = 2;
+    int32 posID     = 3;
+    int32 level     = 4;
+    bool isLocked   = 5;
+    int32 operation = 6; //当前操作(创建，升级，拆除)
+    int64 queueID   = 7; //使用的队列ID
+}
+
+message BuildingRp {
+    int64 id      = 1;
+    int32 cfgID   = 2;
+    int32 posID   = 3;
+    int32 level   = 4;
+    bool isLocked = 5;
+}
+
+message PlayerQueue {
+    int64 ID         = 1;
+    int64 expireTime = 2;
+    int32 type       = 3;
+
+    int64 userID    = 4; //使用者ID
+    int64 userEndTS = 5; //使用结束时间
+}
+
+// battle log参数, 模拟一个union结构
+message BLogArg {
+    sint32 type = 1; // i32v: 2, i64v:3, fltv:4, strv: 5
+    sint32 i32v = 2;
+    sint64 i64v = 3;
+    float fltv  = 4;
+    string strv = 5;
+}
+
+// battle log
+message BLog {
+    BlogType typ          = 1;
+    repeated BLogArg args = 2;
+}
+
+// 受伤的兵
+message WoundedSoldier {
+    int32 ID  = 1;
+    int32 num = 2;
+}
+
+// 科技
+message Technology {
+    int32 cfgID = 1;
+    int32 level = 2;
+}
+
+// 资产
+message Asset {
+    string type = 1;
+    int32 cfgID = 2;
+    int32 count = 3;
+}
+
+// 邮件地址
+message MailAddr {
+    int64 id              = 1; // id
+    string name           = 2; // 名称
+    MailAddrType addrType = 3; // 地址类型
+}
+
+// 邮件
+message Mail {
+    int64 mailID         = 1;                                                                           // 邮件唯一id
+    MailAddr from        = 2;                                                                           // 发起方
+    MailAddr to          = 3;                                                                           // 来源方
+    MailBoxType mailType = 4;                                                                           // 邮件类型
+    int64 createdAt      = 5;                                                                           // 创建时间, ms
+    MailTitle title      = 6 [ (gogoproto.customtype) = "git.tap4fun.com/fw/gs/pb/customtype.Binary" ]; // 标题
+    MailContent content  = 7 [ (gogoproto.customtype) = "git.tap4fun.com/fw/gs/pb/customtype.Binary" ]; // 正文
+    MailBoxType boxID    = 8;                                                                           // 邮箱类型
+    bool isRead          = 9;                                                                           // 已读
+    bool isGetAttachment = 10;                                                                          // 已经领取附件
+    bool isShared        = 11;                                                                          // 已分享
+    bool isStar          = 12;                                                                          // 已加星
+    bool haveAttachment  = 15;
+}
+
+// 邮件附件
+message MailAttachment {
+    repeated Quintuple attachment = 1;
+}
+
+// 邮件邮箱
+message MailBox {
+    MailBoxType BoxID = 1; // 邮箱
+    int32 UnRead      = 2; // 未读邮件数量
+    int32 Total       = 3; // 邮件总数
+}
+
+// 图标
+message Icon {
+    MailIconType iconType = 1;
+    int32 cfgID           = 2;
+    string icon           = 3;
+}
+
+// 邮件标题
+message MailTitle {
+    MailTitleUnion headline = 1; // 主标题
+    MailTitleUnion subhead  = 2; // 副标题
+    int32 mailCfgID         = 3;
+    Icon icon               = 4;
+}
+
+message MailTitleUnion {
+    MailTitleType typ   = 1; // 类型
+    string displayKey   = 2; // 本地化key
+    string unionName    = 3; // 联盟简称
+    string playerName   = 4; // 玩家名字
+    string rawText      = 5; // 纯文本
+    Coord pos           = 6; // 坐标
+    int32 npcTroopCfgID = 7; // npc_troop 配置表id
+}
+
+// 邮件正文
+message MailContent {
+    repeated MailContentUnion contents = 1;
+}
+
+// 邮件正文模块
+message MailContentUnion {
+    int32 moduleCfgID                            = 4; // 邮件模块配置表id
+    MailContentType typ                          = 1; // typ 唯一对应这下面的结构
+    MailContentText text                         = 2;
+    MailContentReward reward                     = 3;
+    MailContentBattleInfo battleInfo             = 5;
+    MailContentBattleRewardShow battleReward     = 6;
+    MailContentBattleLossInfo battleLossInfo     = 7;
+    MailContentBattleLossDetail battleLossDetail = 8;
+    MailContentBattleButton battleButton         = 9;
+}
+
+// 普通文本模块
+message MailContentText {
+    string text = 1;
+    bool isLC   = 2;
+}
+
+// 奖励模块
+message MailContentReward {
+    repeated Quintuple attachment = 1;
+}
+
+// 科技信息
+message Tech {
+
+}
+
+// 战略信息
+message Strategy{
+
+}
+message MCBIHeroInfo {
+    int32 cfgID = 1;
+    int32 lv    = 2;
+}
+
+// 战斗对阵信息模块 玩家信息
+message MCBIPlayerInfo {
+    OwnerType typ = 1;
+    // npc 才有效
+    int32 npcTroopCfgID = 2; // npc_troop 配置表id
+    // 玩家 才有效
+    string unionName  = 3; // 联盟简称
+    string playerName = 4; // 玩家名字
+    int32 cityLv      = 5; // 城市等级
+
+    Coord pos                   = 6; // 坐标, 玩家城池坐标或者npc坐标
+    repeated MCBIHeroInfo heros = 7; // 玩家英雄信息
+    Icon icon                   = 8; // 头像图标
+}
+
+// 战斗对阵信息模块
+message MailContentBattleInfo {
+    MCBIPlayerInfo atk = 1;
+    MCBIPlayerInfo def = 2;
+}
+
+// 奖励展示模块
+message MailContentBattleRewardShow {
+    BattleResult result       = 1; // 战斗结果
+    repeated Quintuple reward = 2; // 奖励
+    int32 npcTroopCfgID       = 3; // npc_troop 配置表id
+}
+
+// 简要损失信息模块 部队数据, 受到伤害: (dead + minor + serious) / total
+message MCBLITroopStat {
+    OwnerType typ = 1; // 拥有者类型
+
+    int32 power   = 2; // 战斗力
+    int32 total   = 3; // 部队总数
+    int32 cure    = 4; // 治疗
+    int32 dead    = 5; // 阵亡
+    int32 minor   = 6; // 轻伤
+    int32 serious = 7; // 重伤
+}
+
+// 简要损失信息模块
+message MailContentBattleLossInfo {
+    MCBLITroopStat atk = 1;
+    MCBLITroopStat def = 2;
+}
+
+// 简要损失信息模块 兵种数据
+message MCBLDSoldierStat {
+    int32 cfgID   = 1; // 兵种配置表id
+    int32 maxNum  = 2; // 初始兵力
+    int32 dead    = 3; // 死亡
+    int32 minor   = 4; // 轻伤
+    int32 serious = 5; // 重伤
+    int32 wipe    = 6; // 消灭敌人兵种数量
+}
+
+// 部队战损详细模块
+message MailContentBattleLossDetail {
+    repeated MCBLDSoldierStat atkSoldiers = 1;
+    repeated MCBLDSoldierStat defSoldiers = 2;
+}
+
+// 战斗对阵信息模块 玩家信息
+message MCBBBuffInfo {
+    OwnerType typ = 1;
+    // npc 才有效
+    int32 npcTroopCfgID = 2; // npc_troop 配置表id
+    // 玩家 才有效
+    string unionName  = 3; // 联盟简称
+    string playerName = 4; // 玩家名字
+
+    Icon icon                   = 8; // 头像图标
+    repeated MCBIHeroInfo heros = 7; // 玩家英雄信息
+    repeated int32 buffs        = 9; // x * 10
+}
+
+// 战斗日志＆部队增益按钮模块
+message MailContentBattleButton {
+    MCBBBuffInfo atk = 1;
+    MCBBBuffInfo def = 2;
+}

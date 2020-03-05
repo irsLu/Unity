@@ -1,0 +1,196 @@
+syntax = "proto3";
+package cspb;
+
+import "vendor/github.com/gogo/protobuf/gogoproto/gogo.proto";
+option (gogoproto.goproto_unrecognized_all) = false;
+option (gogoproto.goproto_unkeyed_all)      = false;
+option (gogoproto.goproto_sizecache_all)    = false;
+
+import "pb/cspb/def.proto";
+import "pb/cspb/struct.proto";
+
+// 区域内的战斗帧同步
+message BattleFrameNtf {
+    repeated BLog blogs = 1;
+    Rectangle border    = 2; // 这个是用来测试的
+    int64 timestamp     = 3; // 战斗开始时间戳
+}
+
+// 战斗结果推送
+message BattleResultNtf {
+    int64 unitID        = 1;
+    BattleResult result = 2;
+    int64 timestamp     = 3; // 战斗开始时间戳
+}
+
+// 战报同步
+message BattleReportNtf {
+    string log = 1; // 文字战报
+}
+
+// 推送医院治疗信息
+message WoundedSoldierInfoNtf {
+    repeated WoundedSoldier waiting = 1; //等待治疗的兵
+    repeated WoundedSoldier healing = 2; //正在治疗的伤员
+    int64 queueID                   = 3; //治疗结束时间
+}
+
+// 推送部队
+message TroopNtf {
+    TroopInfo info = 1;
+}
+
+// SoldierStatusNtf 兵种建筑的兵种生产或者升级状态
+message SoldierStatusNtf {
+    int64 ID                 = 1; // 建筑ID
+    int32 soldierCfgID       = 2; // 当前兵种ID
+    int32 targetSoldierCfgID = 3; // 目标兵种ID
+    int32 count              = 4; // 数量
+    int64 endTs              = 5; // 结束时间
+}
+
+//建筑更新推送到客户端
+message BuildingUpdateNtf {
+    Building building = 1;
+}
+
+//研究更新
+message ResearchNtf {
+    int32 researchingCfgID   = 1;
+    int64 researchingQueueID = 2;
+    repeated Technology tech = 3;
+}
+
+// 推送待收取的兵种
+message SoldierFruitNtf {
+    repeated SoldierFruit lists = 1;
+}
+
+//资源建筑详情列表(上线推送也可单独请求时返回，任意增产收取操作也会返回)
+message BuildingResInfoNtf {
+    repeated BuildingResInfo buildingResInfos = 1;
+}
+
+// Rss资源列表，上线推送，有刷新也会主动推送给客户端
+message RssNtf {
+    repeated RssValue rssList = 1; // 资源列表，typ=rss
+}
+
+// 资源列表，上线推送，有刷新也会主动推送给客户端
+message AssetNtf {
+    repeated AssetInfo assets = 1; // 其它资产列表
+}
+
+// PowerNtf 战斗力详情
+message PowerNtf {
+    repeated Power powers = 1; // 战斗力列表
+}
+
+// 玩家队列列表
+message PlayerQueueNtf {
+    repeated PlayerQueue queues = 1; // 队列列表
+}
+
+// 英雄列表
+message HerosNtf {
+    repeated Hero heros = 1; // 拥有的英雄列表
+}
+
+// 等级同步
+message PlayerLevelNtf {
+    int64 ID    = 1; // 玩家ID
+    int32 level = 2; // 最新等级
+}
+
+// 城市燃烧状态同步
+message CombustionStateNtf {
+    bool isCombustion           = 1; // 是否正在燃烧
+}
+
+// BUFFNtf
+message BuffNtf {
+    repeated Buff buffs = 1; // 返回列表
+}
+
+// BuffDeleteNtf
+message BuffDeleteNtf {
+    repeated int64 ids = 1; // 删除的ID列表
+}
+
+// 实体更新
+message EntitiesNtf {
+    repeated EntityInfo entities = 1;
+    int64 timestamp              = 2;
+}
+
+// 删除实体
+message DelEntitiesNtf {
+    repeated int64 entities = 1;
+    int64 timestamp         = 2;
+}
+
+//建筑删除推送到客户端
+message BuildingDeleteNtf {
+    int64 ID = 1;
+}
+
+// 邮件邮箱同步, 会同步当前所有有邮件的邮箱信息, 没有邮件的邮箱不会同步
+message MailBoxesNtf {
+    repeated MailBox boxes = 1;
+}
+
+// 下发所有的聊天室
+message ChatRoomNtf {
+    repeated ChatRoom rooms = 1;
+}
+
+// 聊天室信息
+message ChatRoom {
+    string roomName      = 1; // 聊天室名字，平台提供的唯一标识
+    string roomGroupType = 2; // 聊天室分组类型: server | union |
+}
+
+// 聊天帐号信息
+message ChatAccountNtf {
+    string account  = 1;
+    string password = 2;
+}
+
+// 情报
+message Intelligence {
+  MarchAct act = 1; // 行军类型
+  EntityType target = 2;
+  int64 troopID = 3; // 敌人部队ID 应该也是情报的唯一ID
+  int64 enemyID = 4; // 敌人ID
+  string name = 5; // 敌人名字
+  Coord cityCoord = 6; // 敌人主城坐标
+  int64 startTime = 7;
+  int64 arriveTime = 8; // 行军到达时间
+  repeated TroopSoldier soldiers = 9; // 部队信息
+  repeated Hero heroes = 10; // 英雄信息  和部队信息组成一个模块
+  Tech tech = 11; // 科技信息
+  Strategy strategy = 12; // 战略信息
+  Coord from = 13;
+  Coord to = 14;
+  int32 cityLevel = 15;
+}
+
+message IntelligencesNtf {
+  repeated Intelligence intelligences = 1;
+  int64 playerID = 2;  // 情报发送给哪个玩家
+}
+
+message IntelligencesDelNtf {
+  repeated int64 troopIDs = 1;
+}
+
+// 客户端所需的平台信息
+message PlatformNtf {
+    string gameID   = 1;
+    string clientID = 2;
+    string chatURL  = 3;
+    string payURL   = 4;
+    string payToken = 5;
+    string chatAccount = 6;
+    string chatPassword = 7;
+}

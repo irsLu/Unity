@@ -1,0 +1,348 @@
+syntax = "proto3";
+package cspb;
+
+import "vendor/github.com/gogo/protobuf/gogoproto/gogo.proto";
+option (gogoproto.goproto_enum_prefix_all) = false;
+
+// 通用消息错误码
+enum ErrCode {
+    // 成功
+    ErrCodeSuccess = 0;
+
+    // 内部错误 [1, 99]
+    ErrCodeFramework              = 1; // 未知的框架错误
+    ErrCodeServerData             = 2; // 服务器数据错误
+    ErrCodeEntityIsNotBelongToYou = 3; // 玩家操作的实体不属于玩家
+
+    // 登陆 [100, 999]
+    ErrCodePfAuthFailed            = 4;  // 平台权限认证失败
+    ErrCodeServerNotFound          = 5;  // 没有找到目标服务器
+    ErrCodeConnectServerFailed     = 6;  // 连接指定服务器失败
+    ErrCodePfCharacterCreateFailed = 7;  // 平台创建角色失败
+    ErrCodeDuplicateCreatePlayer   = 8;  // 在该服务器已存在角色
+    ErrCodeLoginWaitLogoutTimeout  = 9;  // 多点登录, 等待已有角色登出超时
+    ErrCodeLoginWithErrState       = 10; // 多点登录, 已有登录状态错误
+    ErrCodeNilClientInfo           = 11; // clientinfo 为空
+    ErrCodePfLoginFail             = 12; // 平台登陆失败
+    ErrCodePlayerNameAlreadyExist  = 13; // 玩家名已存在
+    ErrCodePlayerNameLenLimit      = 14; // 玩家名超长
+    ErrCodePlayerNameBadWord       = 15; // 玩家名有敏感词
+    ErrCodeCannotAllocMainCity     = 16; // 不能分配玩家主城
+    ErrCodeDuplicateLogin          = 17; // 多次登陆
+    ErrCodeFastLoginSecretErr      = 18; // FastLoginSecret错误
+    ErrCodeNilPlayerName           = 19; // 创建时没有输入玩家名字
+    ErrCodeWrongParam              = 20; // 参数错误
+    ErrCodePlayerNameNoChange      = 21; // 玩家名没有改变
+    ErrCodePlayerNameLenShort      = 22; // 玩家名过短
+
+    // gm [1000, 1999]
+    ErrCodeGMIsClosed        = 1001; // gm关闭
+    ErrCodeGMParamLack       = 1002; // gm参数不足
+    ErrCodeGMCommandNotFound = 1003; // command找不到
+    ErrCodeGMParamErr        = 1004; // gm参数错误
+    ErrCodeGMVerifyFailed    = 1005; // gm权限验证失败
+
+    // item, asset, shop [2000, 2999]
+    ErrCodeAssetNumPoor        = 2000; // 资产数量不足
+    ErrCodeCanNotAddAsset      = 2001; // 无法添加资源
+    ErrCodePlayerNoEnoughCoin  = 2002; // 货币不足
+    ErrCodeShopBuyItemNoExist  = 2003; // 购买的道具不存在
+    ErrCodeItemNumPoor         = 2004; // 道具数量不足
+    ErrCodeItemOverMaxUse      = 2005; // 物品超过单次使用数量
+    ErrCodeItemOverMaxGet      = 2006; // 物品超过单次使用获得
+    ErrCodeItemOverMaxOwn      = 2007; // 物品超过最大拥有数量
+    ErrCodeItemConfNotFound    = 2008; // item_id错误, 配置表找不到
+    ErrCodeInvalidItemUse      = 2009; // 物品使用错误
+    ErrCodeItemValueLessThan0  = 2010; // 物品数量<0
+    ErrCodeConditionFailed     = 2011; // 不满足购买条件
+    ErrCodeNotSoldierBuilding  = 2012; // 不是兵种建筑
+    ErrCodeNoSoldierConfig     = 2013; // 没有找到兵种配置
+    ErrCodeNotTrainCondition   = 2014; // 不满足训练条件
+    ErrCodeTrainMore           = 2015; // 超过训练上限
+    ErrCodeCancelProduceFailed = 2016; // 取消生产失败
+    ErrCodeOnlySoldierUpgrade  = 2017; // 只有兵种才能升级
+    ErrCodeNotUpgradeCondition = 2018; // 不满足升级条件
+    ErrCodeUpgradeParamError   = 2019; // 升级兵种参数不正确
+    ErrCodeUpgradeSoldierBZ    = 2020; // 升级兵种不足
+    ErrCodeCancelUpgradeFailed = 2021; // 取消升级失败
+    ErrCodeSubAssetParamError  = 2022; // 扣除资产参数错误
+    ErrCodeAddAssetParamError  = 2023; // 添加资产参数错误
+    ErrCodeConvertToCoinError  = 2024; // 转化为金币时错误
+    ErrCodeDecTimeError        = 2025; // 计算减少时间错误
+    ErrCodeItemUseTypeError    = 2026; // 道具使用类型错误
+
+    // building [3000, 3999]
+    ErrCodeBuildingNotFound         = 3000; // 指定的building没有找到
+    ErrCodeBuildingResGatherFailed  = 3001; // 收取资源失败
+    ErrCodeBuildingResIncFailed     = 3002; // 增产失败
+    ErrCodeBuildingIsOperating      = 3003; // 建筑正在进行其他操作
+    ErrCodeBuildingCanNotCancel     = 3004; // 没有可以取消的操作
+    ErrCodeBuildingReachedMaxLevel  = 3005; // 建筑等级已经达到最大
+    ErrCodeBuildingCanNotAccel      = 3006; // 建筑不可加速
+    ErrCodeBuildingConfNotFound     = 3007; // conf_id错误, 建筑配置表找不到
+    ErrCodeBuildingConditionFailed  = 3008; // 建筑条件错误
+    ErrCodeBuildingIsUnlocked       = 3009; // 建筑被锁定
+    ErrCodeDomainIsLocked           = 3010; // 地块被锁定
+    ErrCodeSoldierProduceFailed     = 3011; // 兵种生产失败
+    ErrCodeSoldierGatherFailed      = 3012; // 兵种收集失败
+    ErrCodeSoldierUpgradeFailed     = 3013; // 兵种升级失败
+    ErrCodeSoldierSpeedUpFailed     = 3014; // 兵种加速失败
+    ErrCodeSoldierDestroyFailed     = 3015; // 兵种销毁失败
+    ErrCodeBuildingNotRes           = 3016; // 不是资源建筑
+    ErrCodeBuildingAccelRssPoor     = 3017; // 加速资源不足
+    ErrCodeBuildingCountTooMuch     = 3018; // 超过建造最大数量
+    ErrCodeQueueIDError             = 3019; // 队列id错误
+    ErrCodeQueueHaveFinished        = 3020; // 队列已经结束
+    ErrCodeQueueCanNotUseFreeAccel  = 3021; // 无法使用免费加速
+    ErrCodeQueueTimerLost           = 3022; // 队列定时器丢失
+    ErrCodeQueueQueueSpeedIDUnknown = 3023; // 队列加速道具未知
+    ErrcodeQueueQueueLost           = 3024; // 队列丢失
+    ErrcodeBuildingIsLocked         = 3025; // 建筑未解锁
+    ErrcodeNeedGatherSoldier        = 3026; // 请先收集已经训练完成的兵种
+    ErrcodeSoldierProduceType       = 3027; // 生产升级类型错误
+    ErrcodeDontSpeed                = 3028; // 当前不需要加速
+    ErrcodeBuildingForbidRemove     = 3029; // 不允许拆除该建筑
+    ErrcodeBaseBuildingNotFind      = 3030; // 没有找到基地建筑
+    ErrcodeCityNoCombustion         = 3031; // 城市没有燃烧
+    ErrcodeCityDefenseIsMax         = 3032; // 城防值已满，不需要修复
+    ErrcodeHeroNotIdle              = 3033; // 该英雄已有其它任务，不能驻防
+    ErrcodeCityRepairCD             = 3034; // 修复城墙冷却中
+    ErrcodeDelGarrisonHeroFailed    = 3035; // 删除驻防英雄失败
+
+
+    // 名字、头像、形象 [3300, 3499]
+    ErrCodeAvatarNoCondition   = 3300; // 不满足该头像解锁条件
+    ErrCodeAvatarAlreadyUnLock = 3301; // 头像已经解锁
+    ErrCodeAvatarNoUnLock      = 3302; // 头像没有解锁
+    ErrCodeAvatarNoChange      = 3303; // 已经是该头像
+    ErrCodeFashionNoOpen       = 3304; // 不能使用此形像
+    ErrCodeFashionNoChange     = 3305; // 已经是该形象
+
+    // 地块
+    ErrCodeDomainConfNotFound          = 3500; //地块配置未找到
+    ErrCodeDomainUnlockConditionFailed = 3501; //地块解锁条件失败
+    ErrCodeDomainUnlocked              = 3502; //地块已经解锁
+    ErrCodeSubgradeCanNotBuilding      = 3503; // 地基上不能创建该建筑
+
+    // queue [4000, 4999]
+    ErrCodeNotFreeQueue               = 4000; // 没有空闲队列
+    ErrCodeBuildingCanNotUseFreeAccel = 4001; // 免费加速时间未到
+    ErrCodeBuildingAccelTypeError     = 4002; // 加速道具类型错误
+
+    // map [5000, 5999]
+    ErrCodePosHaveBuilding        = 5000; // 位置上已经有建筑
+    ErrCodeCityNotFound           = 5001; // 指定的城池没有找到
+    ErrCodeRelocateCityCoordBlock = 5002; // 移动城池指定的地点存在建筑/不在可放置区域内
+    ErrCodeMarchNotFound          = 5003; // 指定的行军没有找到
+    ErrCodeNoMarchPath            = 5004; // 找不到行军的路径
+    ErrCodeMarchConditionFailed   = 5005; // 行军条件不足
+    ErrCodeEntityNotFound         = 5006; // 实体找不到
+    ErrCodeNoSearchResult         = 5007; // 实体找不到
+    ErrCodePlayerNotFound         = 5008; // 实体找不到
+    ErrCodeRandomCityFail         = 5009; // 随机迁城失败
+    ErrCodeSearchCondition        = 5010; //为达到搜索条件
+
+    // 伤员中心 [6000, 6999]
+    ErrCodeIsHealing           = 6001; // 正在治疗
+    ErrCodeNoWoundedSoldier    = 6002; // 没有伤员
+    ErrCodeSoldierConfNotFound = 6003; // 兵种配置无法找到
+    ErrCodeSoldierNumError     = 6004; // 兵种数量错误
+    ErrCodeNotHealing          = 6005; // 没有治疗
+    ErrCodeHealingNotTimeYet   = 6006; // 治疗时间未到
+    ErrCodeToHealingNumToMuch  = 6007; // 治疗数量太多
+    ErrCodeDisbandNumError     = 6008; // 解散数量错误
+    ErrCodeSoldierParamError   = 6009; // 士兵参数错误
+
+    // 研究科技
+    ErrCodeResearchParamError         = 6050; //研究参数错误
+    ErrCodeResearchBuildingNotExist   = 6051; //研究所不存在
+    ErrCodeIsResearching              = 6052; //正在研究
+    ErrCodeResearchNotFreeQueue       = 6053; //没有研究空闲队列
+    ErrCodeNotResearching             = 6054; //没有研究
+    ErrCodeResearchingCfgIDError      = 6055; //研究配置错误
+    ErrCodeResearchConfigError        = 6056; //研究院配置错误
+    ErrCodeResearchCompeted           = 6057; //研究已经完成
+    ErrCodeResearchCostTypeInvalid    = 6058; //研究消耗类型非法
+    ErrCodeResearchCanNotUseFreeAccel = 6059; //无法使用免费加速
+    ErrCodeResearchReachedMaxLevel    = 6060; //科技已经达到最大等级了
+    ErrCodeResearchConditionFailed    = 6061; //条件满足
+
+    // 部队，行军  [7000, 7999)
+
+    ErrCodeCreateTroopFailed      = 7000; // 创建部队失败
+    ErrCodeCreateTroopHeroNumErr  = 7001; // 英雄数量不正确
+    ErrCodeCreateTroopNoHero      = 7002; // 指定英雄不存在
+    ErrCodeCreateTroopNoSoldier   = 7003; // 没有足够的兵种
+    ErrCodeHeroExist              = 7004; // 英雄已经存在了
+    ErrCodeTargetCoordChange      = 7005; // 静态的行军目标坐标改变(主城, 采集点)
+    ErrCodeNoSupportMarch         = 7006; // 不支持的行军类型
+    ErrCodeAttackFriendlyUnit     = 7007; // 攻击友方单位
+    ErrCodeAttackNoTroopNPCGather = 7008; // 攻击没有部队的npc采集点
+    ErrCodeGatherHasTroop         = 7009; // 采集点正在被采集
+    ErrCodeMarchCannotCamp        = 7010; // 行军不能驻扎
+    ErrCodeDefenseTowerLevel      = 7011; // 情报中心等级不足
+    ErrCodeSoldierCannotDispatch  = 7012; // 城防兵种不能派出城池
+
+    // 邮件 [8000, 8999)
+    ErrCodeMailNilReceivers     = 8000; // 邮件没有接受者
+    ErrCodeMailNilContent       = 8001; // 邮件没有正文
+    ErrCodeMailAlreadyCollected = 8002; // 邮件已经被收藏
+    ErrCodeMailNotCollected     = 8003; // 邮件没有被收藏
+    ErrCodeMailNotFound         = 8004; // 邮件没有找到
+}
+
+// 登录类型
+enum LoginAction {
+    LoginActionLogin    = 0;
+    LoginActionRegister = 1;
+}
+
+// 行军动作
+enum MarchAct {
+    MarchActStubAct = 0;
+    MarchActAttack  = 1; // 攻击
+    MarchActGather  = 2; // 采集
+    MarchActReturn  = 3; // 返回
+    MarchActScout   = 4; // 侦查
+}
+
+// 地图单位类型
+enum EntityType {
+    EntityTypeStub      = 0;
+    EntityTypeTroop     = 1; // 部队
+    EntityTypeMapCity   = 2; // 地图城市
+    EntityTypeNpcGather = 3; // npc采集点
+    EntityTypeNpcTroop  = 4; // npc部队
+    EntityTypeNpcCity   = 5; // npc城市
+}
+
+// 建筑类型
+enum BuildingType {
+    BuildingTypeFarmland   = 0;
+    BuildingTypeLumberyard = 1;
+    BuildingTypeStoneMine  = 2;
+    BuildingTypeGoldMine   = 3;
+    BuildingTypeGemMine    = 4;
+}
+
+// 单位所属类型
+enum OwnerType {
+    OwnerTypePlayerOwner = 0; // 玩家
+    OwnerTypeNpcOwner    = 1; // Npc
+}
+
+// 地图单位半径
+enum RadiusType {
+    RadiusTypeOccupy = 0; // 占地范围
+    RadiusTypeBlock  = 1; // 阻碍范围
+}
+
+// TroopState 除了战斗/行军之外的其他状态
+enum TroopState {
+    TroopStateNone      = 0; //占位符
+    TroopStateStation   = 1; //驻扎
+    TroopStateGathering = 3; //采矿中
+    TroopStateScout     = 4; //侦查
+    TroopStateScoutReturn     = 5; //侦查返回
+    // TroopStateReturned = 4; //回城
+}
+
+enum UnitState {
+    UnitStateNormal   = 0; //正常
+    UnitStateBlooding = 1; //流血
+}
+
+enum TroopStatus {
+    TroopStatusLeading   = 0;
+    TroopStatusFollowing = 1;
+}
+
+// 路点坐标类型
+enum PathCoordType {
+    PathCoordTypeStraightLine = 0; // 直线
+    PathCoordTypeRoundLine    = 1; // 绕路点
+}
+
+// BattleResult 战斗结果
+enum BattleResult {
+    BattleResultNone = 0; // 没有结果, 胜负未分
+    BattleResultWin  = 1; // 胜利
+    BattleResultDead = 2; // 失败
+}
+
+// battleLog 类型
+enum BlogType {
+    BlogTypeErr       = 0;  // Not Used
+    BlogTypeAttack    = 1;  // 攻击 [攻击方部队id(int64), 防御方部队id(int64), 攻击方兵种id(int32), 防御方兵种id(int32)]
+    BlogTypeCounter   = 2;  // 反击 [攻击方部队id(int64), 防御方部队id(int64), 攻击方兵种id(int32), 防御方兵种id(int32)]
+    BlogTypeT2TSkill  = 5;  // 部队之间的技能 [技能id(int32), 攻击方部队id(int64), [防御方部队id(int64)...]]
+    BlogTypeDmgAttack = 6;  // 回合伤害结算, 受到攻击,反击的总伤害 [部队id(int64), 伤害(int32)]
+    BlogTypeDmgSkill  = 7;  // 回合伤害结算, 受到技能伤害 [部队id(int64), [伤害(int32)...]]
+    BlogTypeDmgCure   = 8;  // 回合伤害结算, 受到的治疗, [部队id(int64), [治疗(int32)...]]
+    BlogTypeDmgMp     = 9;  // 回合伤害结算, mp改变, [部队id(int64), mp改变(int32)]
+    BlogTypeRoundOver = 10; // 回合结束, [部队id(int64), 最大血量(int32), 当前血量(int32), 最大mp(int32), 当前mp(int32)]
+}
+
+// 地图单位类型
+enum MapUnitType {
+    MapUnitStub      = 0;
+    MapUnitTroop     = 1; // 部队
+    MapUnitMapCity   = 2; // 地图城市
+    MapUnitNpcGather = 3; // npc采集点
+    MapUnitNpcTroop  = 4; // npc部队
+    MapUnitNpcCity   = 5; // npc城市
+}
+
+// 邮件地址类型
+enum MailAddrType {
+    MailAddrErr    = 0; // err
+    MailAddrPlayer = 1; // 玩家
+    MailAddrUnion  = 2; // 联盟
+    MailAddrSyc    = 3; // 系统
+}
+
+// 邮箱类型
+enum MailBoxType {
+    MailBoxErr     = 0; // err
+    MailBoxCollect = 1; // 收藏箱
+    MailBoxSelf    = 2; // 个人
+    MailBoxSend    = 3; // 已发送
+    MailBoxSys     = 4; // 系统
+    MailBoxBReport = 5; // 战报
+    MailBoxNpc     = 6; // 野怪
+    MailBoxUnion   = 7; // 联盟
+    MailBoxGather  = 8; // 采集
+}
+
+// 邮箱类型
+enum MailTitleType {
+    MailTitleErr            = 0; // err
+    MailTitleSys            = 1; // 系统邮件:  display_key
+    MailTitlePlayer         = 2; // 玩家邮件: [unionName] playerName, 客户端拼接一下
+    MailTitleRawText        = 3; // 纯文本: 直接显示
+    MailTitlePlayerBSubHead = 4; // 与玩家战斗的副标题: unionName, playerName, pos
+    MailTitleNpcBSubHea     = 5; // 与npc战斗的副标题: npcTroopCfgID, pos
+    MailTitleLC             = 6; // 根据 display_key 进行本地化显示
+}
+
+
+// 邮件icon类型
+enum MailIconType {
+    MailIconERR          = 0;
+    MailIconPlayerAvatar = 1; // player_avatar.tsv cfgID
+    MailIconMail         = 2; // mail.tsv cfgID
+    MailIconNpcTroop     = 3; // npc_troop.tsv cfgID
+}
+
+// 邮件正文模块类型, 与策划配置表对应
+enum MailContentType {
+    MailContentTypeErr              = 0;
+    MailContentTypeText             = 1;
+    MailContentTypeReward           = 2;
+    MailContentTypeBattleInfo       = 3;
+    MailContentTypeBattleLossInfo   = 4;
+    MailContentTypeBattleReward     = 5;
+    MailContentTypeBattleHero       = 6;
+    MailContentTypeBattleLossDetail = 7;
+    MailContentTypeBattleButton     = 8;
+}

@@ -1,0 +1,105 @@
+syntax = "proto3";
+package cspb;
+
+import "pb/cspb/struct.proto";
+import "pb/cspb/def.proto";
+
+// 角色元信息
+message CharacterMeta {
+    string name = 1;
+}
+
+// 角色信息
+message Character {
+    string passport    = 1;
+    int32 serverID     = 2;
+    int64 playerID     = 3;
+    CharacterMeta meta = 4;
+    int64 lastLogin    = 5;
+    string accType     = 6;
+}
+
+// 客户端信息
+message ClientInfo {
+    string UDID    = 1;
+    string macAddr = 2;
+    string IP      = 3;
+    string locale  = 4;
+    //    string pushType  = 5; // apns , gcm, fcm
+    //    string pushToken = 6; // Apple Device Token或Android GCM Registration ID
+}
+
+// 服务器信息
+message Server {
+    int32 serverID = 1;
+    string name    = 2;
+    int32 status   = 3;
+}
+
+// 权证验证, 获取 token, 拉取服务器, 角色列表
+message AuthReq {
+    string type       = 1;
+    string passport   = 2;
+    string password   = 3;
+    ClientInfo cInfo  = 4;
+    string signature  = 5;
+    int32 clientState = 6;
+}
+
+message AuthAck {
+    ErrCode errCode               = 1;
+    string accessToken            = 2; // 服务器token
+    repeated Character characters = 3; // 角色列表
+    int64 accountID               = 4; // 账号
+    repeated Server servers       = 5; // 服务器列表
+    int32 recommandServer         = 6; // 推荐服务器
+    string type                   = 7; // 账号类型
+    int32 clientState             = 8; // 客户端状态
+}
+
+// 角色登录
+message CharacterLoginReq {
+    string accessToken = 1;
+    string name        = 2; // 玩家名字
+    int64 accountID    = 3;
+    int32 serverID     = 4;
+    ClientInfo cInfo   = 5;
+    int64 playerID     = 6;
+}
+
+// 角色创建
+message CharacterCreateReq {
+    string accessToken = 1;
+    string name        = 2; // 玩家名字
+    int64 accountID    = 3;
+    int32 serverID     = 4;
+    ClientInfo cInfo   = 5;
+}
+
+// 快速登陆, 服务器使用
+message FastLoginReq {
+    string secret  = 1;
+    int32 serverID = 2;
+    int64 playerID = 3;
+    string name    = 4;
+}
+
+// 网关对客户端的的登录应答
+// CharacterLoginReq,CharacterCreateReq,FastLoginReq
+message LoginAck {
+    int64 playerID        = 1;
+    PlayerInfo playerInfo = 2;
+    ErrCode err           = 3;
+}
+
+// 登出
+message LogoutReq {
+    int64 playerID = 1;
+}
+
+//// 角色删除
+// message CharacterDeleteReq {
+//    string accessToken = 1;
+//    int64 accountID    = 3;
+//    int32 serverID     = 4;
+//}

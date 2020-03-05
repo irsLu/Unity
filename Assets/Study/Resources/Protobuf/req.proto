@@ -1,0 +1,391 @@
+syntax = "proto3";
+package cspb;
+
+import "vendor/github.com/gogo/protobuf/gogoproto/gogo.proto";
+option (gogoproto.goproto_unrecognized_all) = false;
+option (gogoproto.goproto_unkeyed_all)      = false;
+option (gogoproto.goproto_sizecache_all)    = false;
+
+import "pb/cspb/def.proto";
+import "pb/cspb/struct.proto";
+
+// 心跳包
+message HeartBeatReq {
+    int64 clientTS = 1;
+}
+
+// PlayerInfoReq 请求玩家数据
+message PlayerInfoReq {
+}
+
+// RelocateCityReq 移城请求
+message RelocateCityReq {
+    int64 cityID    = 1;
+    Coord targetPos = 2;
+}
+
+message PlayerEntityListReq {
+    EntityType type = 1;
+}
+
+// 随机飞城
+message RandomCityReq {
+    int64 cityID = 1;
+}
+
+// 搜索
+message SearchReq {
+    int64 cityID      = 1;
+    int32 searchID    = 2;
+    int32 playerLevel = 3;
+}
+
+// 创建行军请求
+message NewMarchReq {
+    int64 startID    = 1; // 行军起点ID
+    Coord startCoord = 2; // 起点坐标
+    MarchAct action  = 3; // 行军动作
+    int64 targetID   = 4; // 行军目标ID
+    Coord endCoord   = 5; // 目标点坐标
+}
+
+// 停止行军请求
+message StopMarchReq {
+    int64 entityID = 1;
+}
+
+// 召回行军请求
+message RecallMarchReq {
+    int64 entityID = 1;
+}
+
+// 采集点信息查询
+message GatherInfoReq {
+    int64 gatherID = 1;
+}
+
+// 创建部队请求
+message NewTroopReq {
+    int64 cityID     = 1;
+    Coord startCoord = 2;
+    MarchAct action  = 3; // 行军动作
+    Coord endCoord   = 4;
+    int64 targetID   = 5; // 行军目标ID
+    // map<string, uint64> soldiers = 6; // key为士兵id，value为数量
+    map<int32, uint64> soldiers = 7; // key为士兵cfgID，value为数量
+    repeated int64 HeroIDs      = 8; // 英雄列表
+}
+
+// 请求Rp玩家的建筑信息
+message BuildingRpReq {
+    int64 id = 1; // 玩家ID
+}
+
+// 拉取地图视野
+message WildMapViewReq {
+    Coord centerPos = 1; // 视野中心点位置
+    int64 xSpan     = 2; // x轴跨度
+    int64 zSpan     = 3; // z轴跨度
+}
+
+// SoldierFruitReq 请求待收取的兵种
+message SoldierFruitReq {
+}
+// RssReq 请求Rss资源
+message RssReq {
+}
+// AssetReq 请求其它资源
+message AssetReq {
+}
+// PowerReq 请求战斗力详情
+message PowerReq {
+}
+// PlayerSelfInfoReq 请求当前玩家数据
+message PlayerSelfInfoReq {
+}
+
+// BuffListReq 拉取所有BUFF列表
+message BuffListReq {
+    repeated int32 categories = 1; // 拉取的类型列表
+}
+
+// GMReq gm命令
+message GMReq {
+    repeated string args = 1;
+}
+
+///////////////////////////////兵种升级///////////////////////////////
+
+// UpgradeSoldierReq 升级兵种
+message UpgradeSoldierReq {
+    int64 ID                  = 1; // 建筑ID
+    int32 soldierCfgID        = 2; // 兵种ID
+    int32 upgradeSoldierCfgID = 3; // 晋升到的兵种ID
+    // 升级类型，1金币升级(立即完成)，2道具升级，3优先使用道具再用金币补足升级
+    int32 UpgradeType = 4;
+    int32 number      = 5; // 升级数量
+}
+
+// CancelUpgradeReq 取消兵种升级请求
+message CancelUpgradeSoldierReq {
+    int64 ID = 1; // 建筑ID
+}
+
+// SoldierStatusReq 请求当前兵种建筑的兵种生产或者升级状态
+message SoldierStatusReq {
+    int64 ID = 1; // 建筑ID
+}
+
+///////////////////////////////兵种生产///////////////////////////////
+// ProduceSoldierReq 生产兵种
+message ProduceSoldierReq {
+    int64 ID           = 1; // 建筑ID
+    int32 soldierCfgID = 2; // 兵种ID
+    int32 number       = 3; // 数量
+    // 生产类型，1金币生产(立即完成)，2道具生产，3优先使用道具再用金币补足升级
+    int32 produceType = 4;
+}
+
+// DestroySoldierReq 销毁兵种
+message DestroySoldierReq {
+    int32 soldierCfgID = 1; // 兵种ID
+    int32 number       = 2; // 数量
+}
+
+// GatherProduceReq 收取兵种
+message GatherProduceReq {
+    int64 ID = 1; // 建筑ID
+}
+
+// CancelProduceReq 取消生产队列
+message CancelProduceReq {
+    int64 ID = 1; // 建筑ID
+}
+
+// BuildingCreateReq 创建建筑请求
+message BuildingCreateReq {
+    int32 posID         = 1;
+    int32 buildingCfgID = 2;
+    bool immed          = 3; //立即创建
+}
+
+// BuildingUpgradeReq 升级建筑请求
+message BuildingUpgradeReq {
+    int64 ID   = 1;
+    bool immed = 2; //立即升级
+}
+
+// BuildingCancelReq 取消建筑操作请求
+message BuildingCancelReq {
+    int64 ID = 1;
+}
+
+// BuildingDeleteReq 删除建筑请求
+message BuildingDeleteReq {
+    int64 ID   = 1;
+    bool immed = 2; //立即拆除
+}
+
+// BuildingUnlockReq 建筑解锁请求
+message BuildingUnlockReq {
+    int64 ID = 1;
+}
+
+// BuildingAreaUnlockReq 地块解锁请求
+message BuildingAreaUnlockReq {
+    int32 CfgID = 1;
+}
+
+// BuildingResInfoReq 请求资源建筑详情
+message BuildingResInfoReq {
+    int64 ID = 1;
+}
+
+// BuildingResGatherReq 收取指定建筑资源
+message BuildingResGatherReq {
+    repeated int64 ID = 1;
+}
+
+// BuildingResItemIncReq 道具增产
+message BuildingResItemIncReq {
+    // 如果本值为0，则根据道具增产类型，服务器按照规则，88
+
+    int64 ID     = 1;
+    int64 itemID = 2;
+}
+
+// BuildingResCoinIncReq 货币增产
+message BuildingResCoinIncReq {
+    int64 ID    = 1; // 必须有一个建筑主体
+    int32 cfgID = 2; // 商店兑换的目标道具ID
+}
+
+// UseItemReq 使用道具
+message UseItemReq {
+    int32 CfgID = 1;
+    int32 count = 2;
+}
+
+// ShopBuyReq 购买
+message ShopBuyReq {
+    int32 cfgID = 1; // 商店唯一id
+    int32 count = 2; // 兑换几次
+}
+
+// ShopReq 请求商店
+message ShopReq {
+}
+
+// CityDefenseReq 请求城墙城防信息
+message CityDefenseReq {
+}
+// 请求灭火
+message ExtinguishingReq {
+}
+// 请求维修
+message CityRepairReq {
+}
+// 添加或修改驻防英雄
+message ChangeGarrisonHeroReq {
+    bool isMain     = 1; // 是否主英雄，false为副将
+    int64 heroID    = 2; // 英雄ID,0删除驻防英雄
+}
+
+////////////////////////玩家信息///////////////////////////
+// 改名，服务器自动判断消耗，优先判断免费次数，其次改名道具，然后金币
+message ChangeNameReq {
+    string name = 1; // 新名字
+}
+
+// 请求已经解锁的头像列表
+message UnLockAvatarListReq {
+}
+
+// 请求解锁头像
+message UnLockAvatarReq {
+    int32 avatarCfgID = 1; // 头像
+}
+
+// 修改头像
+message ChangeAvatarReq {
+    int32 avatarCfgID = 1; // 新的头像
+}
+
+// 修改形象
+message ChangeFashionReq {
+    int32 fashionCfgID = 1; // 新的形象
+}
+
+// 请求战斗详情
+message BattleDetailReq {
+    int64 targetID = 1; // 查看谁的战斗详情
+}
+
+// 请求目标基础信息
+message TargetPlayerBaseReq {
+    int64 targetID = 1; // 查看目标
+}
+
+// CoinBuyAssetReq 使用金币购买指定数量的资源
+message CoinBuyAssetReq {
+    repeated Asset buy = 1;
+}
+
+////////////////////////伤员中心///////////////////////////
+// WoundedSoldierReq 请求伤员数据
+message WoundedSoldierReq {
+}
+// HealingSoldierReq 请求治疗
+message HealingSoldierReq {
+    repeated WoundedSoldier soldier = 1; //治疗的士兵
+    bool immed                      = 2; //立即治疗
+}
+
+// HealingSoldierGetReq 治疗结束，收获
+message HealingSoldierGetReq {
+}
+
+// DisbandWoundedSoldierReq 遣散士兵
+message DisbandWoundedSoldierReq {
+    repeated WoundedSoldier soldier = 1; //治疗的士兵
+}
+
+// CancelHealingReq 取消治疗
+message CancelHealingReq {
+}
+
+////////////////////研究所////////////////////////
+// ResearchReq 研究请求
+message ResearchReq {
+}
+
+// TechnologyResearchReq 科技研究
+message TechnologyResearchReq {
+    int32 cfgID = 1;
+    bool immed  = 2;
+}
+
+// ResearchCancelReq 研究取消
+message ResearchCancelReq {
+}
+
+// HerosReq 拉取英雄信息
+message HerosReq {
+}
+
+// QueueAccelReq 队列加速
+message QueueAccelReq {
+    int64 ID               = 1;
+    repeated IDAndNum Cost = 2;
+}
+
+// 分页式的 拉取邮件列表
+// startID = 0, direction = false 表示最开始的页
+message MailListReq {
+    MailBoxType boxID = 1; // 邮箱类型
+    int64 startID     = 2; // 起始位置
+    bool direction    = 3; // 方向, true: ID升序, false: ID降序
+    int32 num         = 4; // 数量, 请求的页大小
+}
+
+// 发送邮件给玩家
+message SendPlayerMailReq {
+    repeated int64 targetID = 1; // 接受方id
+    string subhead          = 3; // 副标题
+    string content          = 4; // 正文
+}
+
+// 阅读邮件
+message ReadMailReq {
+    repeated int64 mailIds = 1;
+}
+
+// 获取邮件附件, 会设置邮件为已读
+message GetAttachmentReq {
+    int64 mailID = 1;
+}
+
+// 领取邮箱所有附件, 会自动设置所有邮件为已读
+message GetAttachmentAllReq {
+    MailBoxType boxID = 1; // 邮箱
+}
+
+// MailBoxListReq 邮箱请求, 通过BoxesNtf回应
+message MailBoxListReq {
+}
+
+
+// 删除邮件, 会自动领取附件
+message DelMailReq {
+    repeated int64 mailIds = 1; // 接收方地址
+}
+
+// 移动邮件到指定邮箱
+message MoveMailReq {
+    int64 mailID      = 1;
+    MailBoxType boxID = 2; // 邮箱
+}
+
+// 请求所有的情报
+message IntelligencesReq{
+}

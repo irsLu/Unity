@@ -1,0 +1,784 @@
+syntax = "proto3";
+package cspb;
+
+import "vendor/github.com/gogo/protobuf/gogoproto/gogo.proto";
+option (gogoproto.goproto_unrecognized_all) = false;
+option (gogoproto.goproto_unkeyed_all)      = false;
+option (gogoproto.goproto_sizecache_all)    = false;
+
+import "pb/cspb/def.proto";
+import "pb/cspb/struct.proto";
+
+//// 通用错误码
+// message CommonAck {
+//    uint32 errReq   = 1;
+//    ErrCode errCode = 2;
+//}
+
+// HeartBeatAck 心跳
+message HeartBeatAck {
+    int64 clientTS = 1;
+    int64 serverTS = 2;
+}
+
+// PlayerInfoAck 玩家数据应答
+message PlayerInfoAck {
+    PlayerInfo playerInfo = 1;
+}
+
+// PlayerTroopsAck 玩家部队数据
+message PlayerTroopsAck {
+    repeated EntityInfo entities = 1;
+}
+
+message RandomCityAck {
+    ErrCode errCode = 1;
+    int64 cityID    = 2;
+    Coord cityCoord = 3;
+}
+
+message SearchAck {
+    ErrCode errCode               = 1;
+    repeated SearchResult results = 2;
+}
+
+// NewMarchAck 创建行军结果
+message NewMarchAck {
+    ErrCode errCode = 1;
+}
+
+// StopMarchAck 停止行军结果
+message StopMarchAck {
+    ErrCode errCode = 1;
+}
+
+// RecallMarchAck 召回行军结果
+message RecallMarchAck {
+    ErrCode errCode = 1;
+}
+
+// 返回拉取指定的地图实体
+message MapUnitAck {
+    ErrCode errCode              = 1;
+    repeated EntityInfo entities = 2;
+}
+
+// NewTroopAck 创建部队请求结果
+message NewTroopAck {
+    ErrCode errCode = 1;
+}
+
+// NewScoutAck 创建侦查请求结果
+message NewScoutAck {
+    ErrCode errCode = 1;
+}
+
+// BuildingRpAck 远程玩家的建筑信息
+message BuildingRpAck {
+    int64 id                      = 1;
+    repeated BuildingRp buildings = 2;
+    bool isCombustion             = 3; // 是否正在燃烧
+}
+
+// WildMapViewAck 拉取地图视野
+message WildMapViewAck {
+    repeated EntityInfo entities = 1;
+}
+
+// SoldierFruitAck 请求待收取的兵种返回
+message SoldierFruitAck {
+    ErrCode errCode = 1;
+}
+
+// RssAck 请求Rss资源返回
+message RssAck {
+    ErrCode errCode = 1;
+}
+
+// AssetAck 请求其它资源返回
+message AssetAck {
+    ErrCode errCode = 1;
+}
+
+// PowerAck 战斗力详情
+message PowerAck {
+    ErrCode errCode = 1;
+}
+
+// PlayerSelfInfoAck 登陆成功过后，服务器回返回该信息
+message PlayerSelfInfoAck {
+    int64 ID    = 1;
+    int32 level = 2;
+    string name = 3;
+
+    repeated Building buildings   = 4;
+    repeated PlayerQueue queues   = 5;
+    repeated int32 unlockedDomain = 6;
+
+    int32 avatarCfgID         = 8;  // 头像
+    int32 fashionCfgID        = 9;  // 形象
+    int32 freeChangeNameTimes = 10; // 免费改名次数
+    int32 vipLvl              = 11; // vip等级
+    int64 unionID             = 12; // 所在联盟的ID，没有为0
+    repeated Counter counters = 13; // 数据统计
+}
+
+// BuffListAck 拉取BUFF返回
+message BuffListAck {
+    ErrCode errCode = 1;
+}
+
+// GMAck GM返回
+message GMAck {
+    string strRet = 1;
+}
+
+///////////////////////////////兵种升级///////////////////////////////
+// UpgradeSoldierAck 升级兵种
+message UpgradeSoldierAck {
+    ErrCode errCode = 1;
+}
+
+// CancelUpgradeSoldierAck 取消兵种升级请求
+message CancelUpgradeSoldierAck {
+    ErrCode errCode = 1;
+}
+
+// SoldierStatusAck 请求当前兵种建筑的兵种生产或者升级状态结果
+message SoldierStatusAck {
+    ErrCode errCode = 1;
+}
+
+///////////////////////////////兵种生产///////////////////////////////
+// ProduceSoldierAck 生产兵种
+message ProduceSoldierAck {
+    ErrCode errCode = 1;
+}
+
+// DestroySoldierAck 销毁兵种
+message DestroySoldierAck {
+    ErrCode errCode = 1;
+}
+
+// GatherProduceAck 收取兵种
+message GatherProduceAck {
+    ErrCode errCode = 1;
+    int64 ID        = 2; // 建筑ID
+    int32 soldierCfgID      = 3;
+    int32 soldierNum        = 4;
+}
+
+// CancelProduceAck 取消生产队列
+message CancelProduceAck {
+    ErrCode errCode = 1;
+}
+
+// BuildingCreateAck 创建建筑
+message BuildingCreateAck {
+    ErrCode errCode = 1;
+    int64 ID        = 2;
+}
+
+// BuildingUpgradeAck 升级建筑
+message BuildingUpgradeAck {
+    ErrCode errCode = 1;
+    int64 ID        = 2;
+}
+
+// BuildingCancelAck 取消建筑操作
+message BuildingCancelAck {
+    ErrCode errCode = 1;
+    int64 ID        = 2;
+}
+
+// BuildingDeleteAck 删除建筑
+message BuildingDeleteAck {
+    ErrCode errCode = 1;
+    int64 ID        = 2;
+}
+
+// BuildingUnlockAck 建筑解锁返回
+message BuildingUnlockAck {
+    ErrCode errCode = 1;
+    int64 ID        = 2;
+}
+
+// BuildingAreaUnlockAck 地块解锁
+message BuildingAreaUnlockAck {
+    ErrCode errCode = 1;
+    int32 cfgID     = 2;
+}
+
+// BuildingResInfoAck 资源建筑详情
+message BuildingResInfoAck {
+    ErrCode errCode = 1;
+    int64 ID        = 2;
+}
+
+// BuildingResGatherAck 收取资源返回
+message BuildingResGatherAck {
+    ErrCode errCode                   = 1;
+    repeated BuildResGatherInfo infos = 2;
+}
+
+// BuildingResItemIncAck 道具增产返回
+message BuildingResItemIncAck {
+    ErrCode errCode = 1;
+    int64 ID        = 2;
+}
+
+// BuildingResCoinIncAck 货币增产
+message BuildingResCoinIncAck {
+    ErrCode errCode = 1;
+    int64 ID        = 2;
+}
+
+// UseItemAck 使用道具返回
+message UseItemAck {
+    ErrCode errCode               = 1;
+    repeated CfgIDAndNum useItems = 2; // 使用的列表
+}
+
+// ItemStoreBuyAck 购买
+message ItemStoreBuyAck {
+    ErrCode errCode = 1;
+}
+
+// ItemStoreBuyUseAck 购买并使用
+message ItemStoreBuyUseAck {
+    ErrCode errCode = 1;
+}
+
+// ItemStoreItemsAck 商品列表
+message ItemStoreAck {
+    repeated ItemStoreItem items = 1; // 商品列表
+}
+
+// CityDefenseAck 返回城墙城防信息
+message CityDefenseAck {
+    int32 cityDefense             = 1; // 当前城防值
+    int32 mainGarrisonHeroCfgID   = 2; // 驻防主英雄ID
+    int32 deputyGarrisonHeroCfgID = 3; // 驻防副将英雄ID
+    bool isCombustion             = 4; // 是否正在燃烧
+    int64 lastRepairTs            = 5; // 上次维修时间
+}
+// 灭火Ack
+message ExtinguishingAck {
+    ErrCode errCode   = 1;
+    int32 cityDefense = 2; // 当前城防值
+}
+// 维修Ack
+message CityRepairAck {
+    ErrCode errCode    = 1;
+    int32 cityDefense  = 2; // 当前城防值
+    int64 lastRepairTs = 3; // 上次维修时间
+}
+
+// 请求驻防英雄
+message GarrisonHeroAck {
+    ErrCode errCode = 1;
+}
+
+// 修改驻防英雄结果
+message ChangeGarrisonHeroAck {
+    ErrCode errCode = 1;
+}
+
+////////////////////////玩家信息///////////////////////////
+// 检查名字是否合法
+message ChangeNameCheckAck {
+    string name     = 1; // 名字
+    ErrCode errCode = 2;
+}
+
+// 改名
+message ChangeNameAck {
+    string name               = 1; // 新名字
+    ErrCode errCode           = 2;
+    int32 freeChangeNameTimes = 3; // 剩余免费改名次数
+}
+
+// 已经解锁的头像列表
+message UnLockAvatarListAck {
+    repeated int32 unlockAvatars = 1; // 已经解锁的头像列表
+    ErrCode errCode              = 2;
+}
+
+// 解锁头像返回
+message UnLockAvatarAck {
+    int32 avatarCfgID = 1; // 解锁的头像
+    ErrCode errCode   = 2;
+}
+
+// 修改头像
+message ChangeAvatarAck {
+    int32 avatarCfgID = 1; // 新的头像
+    ErrCode errCode   = 2;
+}
+
+// 获取目标玩家头像返回
+message TargetHeadInfoAck {
+    ErrCode errCode = 1;
+
+    map<int64, PlayerHeadInfo> playerHeadInfos = 2; // 玩家简要信息
+}
+
+// 修改形象
+message ChangeFashionAck {
+    int32 fashionCfgID = 1; // 新的形象
+    ErrCode errCode    = 2;
+}
+
+// CoinBuyAssetAck 使用金币购买指定数量的资源返回
+message CoinBuyAssetAck {
+    ErrCode errCode = 1;
+}
+
+////////////////////////伤员中心///////////////////////////
+
+// WoundedSoldierAck 请求伤员数据结果
+message WoundedSoldierAck {
+    ErrCode errCode = 1;
+}
+
+// HealingSoldierAck 请求治疗返回
+message HealingSoldierAck {
+    ErrCode errCode = 1;
+}
+
+// HealingSoldierGetAck 治疗结束收获返回
+message HealingSoldierGetAck {
+    ErrCode errCode       = 1;
+    map<int32, int32> get = 2; // 收获的士兵<id, num>
+}
+
+// DisbandWoundedSoldierAck 遣散士兵返回
+message DisbandWoundedSoldierAck {
+    ErrCode errCode = 1;
+}
+
+// 取消治疗
+message CancelHealingAck {
+    ErrCode errCode = 1;
+}
+
+////////////////////研究所////////////////////////
+// ResearchAck 研究请求结果
+message ResearchAck {
+    ErrCode errCode = 1;
+}
+
+// TechnologyResearchAck 科技研究返回
+message TechnologyResearchAck {
+    ErrCode errCode = 1;
+    int32 cfgID     = 2;
+}
+
+// ResearchCancelAck 研究取消 返回
+message ResearchCancelAck {
+    ErrCode errCode = 1;
+}
+
+// HerosAck
+message HerosAck {
+    ErrCode errCode = 1;
+}
+
+// 招募英雄
+message HeroRecruitAck {
+    ErrCode errCode = 1;
+    int32 heroCfgID = 2; // 英雄配置ID
+}
+
+// 英雄兑换、升星
+message HeroUpStarAck {
+    ErrCode errCode = 1;
+    int32 heroCfgID = 2; // 英雄配置ID
+    bool isUpStar   = 3; // 是否升阶
+}
+
+// 一键升阶
+message HeroUpStarOneKeyAck {
+    ErrCode errCode = 1;
+    int32 heroCfgID = 2;
+}
+
+// 装备配件
+message HeroInstallComAck {
+    ErrCode errCode = 1;
+    int32 heroCfgID = 2; // 英雄配置ID
+    int32 index     = 3; // 配件孔索引
+}
+
+// 卸载配件
+message HeroUnInstallComAck {
+    ErrCode errCode      = 1;
+    int32 heroCfgID      = 2; // 英雄配置ID
+    int32 index          = 3; // 配件孔索引
+    repeated Asset items = 4; // 卸载所得
+}
+
+// 配件合成
+message HeroComCompoundAck {
+    ErrCode errCode    = 1;
+    int32 comItemCfgID = 2; // 配件道具ID
+}
+
+// 配件分解
+message HeroComDeCompoundAck {
+    ErrCode errCode            = 1;
+    repeated CfgIDAndNum items = 2; // 分解所得
+}
+
+// QueueAccelAck 队列加速返回
+message QueueAccelAck {
+    ErrCode errCode = 1;
+    int64 ID        = 2;
+}
+
+// 采集点信息查询应答
+message GatherInfoAck {
+    ErrCode errCode           = 1;
+    int64 gatherID            = 2;
+    int64 troopID             = 3;
+    repeated TypIDVal remains = 4;
+    repeated TypIDVal got     = 5;
+    repeated TypIDVal cur     = 6;
+    repeated TypIDVal speed   = 7;
+}
+
+// 战斗详情返回
+message BattleDetailAck {
+    int64 targetID                 = 1; // 目标角色
+    map<int32, int64> battleDetail = 2; // 战斗详情
+}
+
+// 请求目标基础信息
+message TargetPlayerBaseAck {
+    int64 targetID       = 1;  // 目标角色
+    string name          = 2;  // 名字
+    int32 level          = 3;  // 角色等级
+    int32 cityLevel      = 4;  // 基地等级
+    int64 power          = 5;  // 总战斗力
+    int32 avatarCfgID    = 6;  // 头像
+    int32 vipLvl         = 7;  // vip等级
+    int64 unionID        = 8;  // 所在联盟的ID，没有为0
+    int32 fashionCfgID   = 9;  // 形象
+    string unionNickName = 10; // 联盟简称
+    string unionName     = 11; // 联盟名字
+    int64 killEnemy      = 12; // 击杀敌人
+}
+
+// 发送邮件给玩家
+message SendPlayerMailAck {
+    ErrCode errCode = 1;
+}
+
+// 拉取邮件
+message MailListAck {
+    // 请求内容
+    MailBoxType boxID = 1; // 邮箱类型
+    int64 startID     = 2; // 起始位置
+    bool direction    = 3; // 方向, true: ID升序, false: ID降序
+    int32 num         = 4; // 数量, 请求的页大小
+
+    // 邮件列表
+    repeated Mail mails = 5; // 邮件列表
+}
+
+message ReadMailAck {
+    repeated int64 mailIds = 1;
+}
+
+message GetAttachmentAck {
+    repeated int64 mailIds = 1;
+}
+
+message GetAttachmentAllAck {
+    MailBoxType boxID = 1;
+    int32 num         = 2; // 获取附件的邮件数量
+}
+
+message DelMailAck {
+    repeated int64 mailIds = 1;
+}
+
+message MoveMailAck {
+    ErrCode errCode = 1;
+    int64 mailID    = 2; // 原来的邮件id
+    int64 newMailID = 3; // 新邮件id
+}
+
+message MailBoxListAck {
+}
+
+// 请求所有的情报
+message IntelligencesAck {
+    ErrCode errCode = 1;
+}
+
+message CreateChatRoomAck {
+    ErrCode errCode = 1;
+    ChatRoom room   = 2;
+}
+
+message DeleteChatRoomAck {
+    ErrCode errCode = 1;
+}
+
+message InviteChatRoomMemberAck {
+    ErrCode errCode = 1;
+    string roomName = 2;
+}
+
+message KickChatRoomMemberAck {
+    ErrCode errCode = 1;
+    string roomName = 2;
+}
+
+////////////////////联盟///////////////////////
+
+message UnionAck {
+    ErrCode errCode = 1;
+}
+
+message RecommendUnionAck {
+    repeated UnionInfo result = 1;
+    repeated int64 applied    = 2;
+}
+
+message UnionInviteRecommendPlayerAck {
+    ErrCode errCode                = 1;
+    repeated int64 invitedPlayerID = 2;
+    repeated PlayerBaseInfo result = 3;
+}
+
+message UnionApplyRecordAck {
+    repeated UnionInfo result = 1;
+}
+
+message PlayerBeUnionInvitedRecordAck {
+    repeated UnionInfo result = 1;
+}
+
+message UnionQueryByNameAck {
+    repeated UnionInfo result = 1;
+}
+
+message CheckUnionCreateStrAck {
+    ErrCode checkRet = 1;
+    int32 typ        = 2;
+}
+
+message CreateUnionAck {
+    ErrCode errCode = 1;
+}
+
+message DisbandUnionAck {
+    ErrCode errCode = 1;
+}
+
+message JoinUnionAck {
+    ErrCode errCode = 1;
+
+    int64 unionID = 2;
+    bool isApply  = 3; // 是否是申请
+}
+
+message QuitUnionAck {
+    ErrCode errCode = 1;
+}
+
+message CancelApplyJoinUnionAck {
+    ErrCode errCode = 1;
+    int64 unionID   = 2;
+}
+
+message HandleUnionApplyAck {
+    ErrCode errCode      = 1;
+    int64 targetPlayerID = 2;
+    bool isAgree         = 3;
+}
+
+message UnionMemberClassAdjustAck {
+    ErrCode errCode = 1;
+
+    int64 targetPlayerID = 2;
+    int32 targetClassID  = 3;
+}
+
+message UnionAllOfficerApplyAck {
+    ErrCode errCode = 1;
+}
+
+message UnionOfficerApplyAck {
+    ErrCode errCode = 1;
+
+    int32 classCfgID = 2;
+}
+
+message UnionLeaderTransferAck {
+    ErrCode errCode = 1;
+}
+
+message RemoveUnionMemberAck {
+    ErrCode errCode = 1;
+
+    int64 targetPlayerID = 2;
+}
+
+message UpdateUnionNickNameAck {
+    ErrCode errCode = 1;
+}
+
+message UpdateUnionNameAck {
+    ErrCode errCode = 1;
+}
+
+message UpdateUnionDescAck {
+    ErrCode errCode = 1;
+}
+
+message UpdateUnionLangAck {
+    ErrCode errCode = 1;
+}
+
+message UpdateUnionFlagAck {
+    ErrCode errCode = 1;
+}
+
+message UpdateUnionJoinConditionAck {
+    ErrCode errCode = 1;
+}
+
+message QueryPlayerInviteJoinUnionAck {
+    ErrCode errCode                = 1;
+    repeated int64 invitedPlayerID = 2;
+    repeated PlayerBaseInfo result = 3;
+}
+
+message UnionInviteAck {
+    ErrCode errCode = 1;
+
+    int64 targetPlayerID = 2;
+}
+
+message UnionCancelInviteAck {
+    ErrCode errCode = 1;
+
+    int64 targetPlayerID = 2;
+}
+
+message PlayerHandleUnionInviteAck {
+    ErrCode errCode = 1;
+
+    int64 unionID = 2;
+    bool isAgree  = 3;
+}
+
+message UnionHelpInfoAck {
+    repeated UnionHelp helps = 1;
+}
+
+message SeekUnionHelpAck {
+    ErrCode errCode = 1;
+}
+
+message HelpUnionAllMemberAck {
+    ErrCode errCode = 1;
+}
+
+message QueryPlayerByNameAck {
+    repeated PlayerBaseInfo result = 1;
+}
+
+message QueryPlayerAck {
+    ErrCode errCode       = 1;
+    PlayerBaseInfo result = 2; // 结果
+    string queryName      = 3; // 查询名字
+}
+
+message TransportRssAck {
+    ErrCode errCode = 1;
+}
+
+message QuestListAck {
+    ErrCode errCode = 1;
+}
+
+message QuestAwardAck {
+    ErrCode errCode = 1;
+    int32 questID   = 2;
+}
+message PlayerUnionTreasureAck {
+    ErrCode errCode = 1;
+}
+
+message RefreshUnionTreasureAck {
+    ErrCode errCode = 1;
+}
+
+message MiningUnionTreasureAck {
+    ErrCode errCode = 1;
+}
+
+message UnionTreasureSeekHelpAck {
+    ErrCode errCode = 1;
+}
+
+message UnionTreasureHelpAck {
+    ErrCode errCode = 1;
+}
+
+message UnionTreasureClaimAck {
+    ErrCode errCode = 1;
+}
+
+message UnionShopAck {
+}
+
+message UnionShopRestockAck {
+    ErrCode errCode = 1;
+}
+
+message UnionShopPurchaseAck {
+    ErrCode errCode = 1;
+}
+
+message UnionShopRestockRecordAck {
+    repeated UnionShopRecord records = 1;
+}
+
+message UnionShopPurchaseRecordAck {
+    repeated UnionShopRecord records = 1;
+}
+
+message RanklistAck {
+    ErrCode errCode            = 1;
+    RankType typ               = 2;
+    repeated RankItem ranklist = 3;
+    RankItem selfRank          = 4;
+}
+
+message UnionCheckInAck {
+    ErrCode errCode = 1;
+}
+
+message UnionQuestAck {
+    ErrCode errCode = 1;
+
+    int64 lastLevelUnionTS           = 2;
+    repeated int32 claimedQuestCfgID = 3;
+}
+
+message UnionQuestAwardAck {
+    ErrCode errCode = 1;
+}
+
+message AllRanklistAck {
+    repeated RankHead heads = 1;
+}
+
+message PlayerCounterAck {
+    map<int32, int32> counter = 1; // 计数器
+}
